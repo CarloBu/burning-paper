@@ -1,20 +1,24 @@
 {
-  "name": "",
+  "name": "burning-paper",
+  "version": "1.0.0",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
-  "engines": {
-    "node": ">=22.12.0"
-  },
+  "packageManager": "pnpm@11.5.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro build && wrangler dev",
+    "dev:ui": "astro dev",
+    "dev:worker": "wrangler dev --port 8787",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "deploy": "astro build && wrangler deploy",
+    "test": "vitest run",
+    "check": "node --check src/worker.js"
   },
   "dependencies": {
-    "astro": "^7.3.5"
+    "astro": "7.3.3"
   },
-  "allowScripts": {
-    "esbuild": true
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.1.12",
+    "vitest": "4.1.11",
+    "wrangler": "4.134.0"
   }
 }
