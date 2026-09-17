@@ -49,7 +49,9 @@ import '../styles/global.css';
             <span slot="detail" id="reveal-detail">Anyone with this link can open it. Reveal only when ready.</span>
           </ActionPanel>
           <ActionPanel name="secret">
-            <Button class="start-over">New secret</Button>
+            <Button id="copy-secret">Copy &amp; clear</Button>
+            <Button slot="secondary" variant="secondary" id="clear-secret">Clear now</Button>
+            <span slot="detail">Disappears in <span id="countdown" class="timer">60s</span></span>
           </ActionPanel>
           <ActionPanel name="done">
             <Button class="start-over">New secret</Button>

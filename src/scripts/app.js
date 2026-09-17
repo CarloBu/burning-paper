@@ -13,6 +13,9 @@ const views = ['compose', 'share', 'reveal', 'secret', 'done'];
 let recipient = null;
 let busy = false;
 let generation = 0;
+let activeView = 'compose';
+let clearTimer;
+let deadline = 0;
 
 function setBusy(value) {
   busy = value;
@@ -22,6 +25,7 @@ function setBusy(value) {
 }
 
 function show(view) {
+  activeView = view;
   for (const name of views) byId(`${name}-view`).hidden = name !== view;
   byId('secret-form').hidden = view !== 'compose';
   byId('secret-paper').hidden = view !== 'secret';
@@ -31,6 +35,8 @@ function show(view) {
 }
 
 function clearSensitive() {
+  clearInterval(clearTimer);
+  deadline = 0;
   generation++;
   recipient = null;
   input.value = '';
@@ -143,12 +149,50 @@ revealButton.addEventListener('click', async () => {
     if (generation !== current) return;
     output.value = plaintext;
     show('secret');
+    deadline = Date.now() + 60_000;
+    byId('countdown').textContent = '60s';
+    clearTimer = setInterval(() => {
+      byId('countdown').textContent = Math.max(0, Math.ceil((deadline - Date.now()) / 1000)) + 's';
+      expireDisplay();
+    }, 250);
     setBusy(false);
   } catch (error) {
     if (generation === current) finish('Gone.', error.status === 410 ? error.message : 'Could not reveal this secret. Ask the sender for a new link.');
   }
 });
 
+function expireDisplay() {
+  if (activeView !== 'secret' || !deadline || Date.now() < deadline) return false;
+  finish('Gone.', 'Time’s up. Cleared from this page.');
+  return true;
+}
+
+byId('copy-secret').addEventListener('click', async () => {
+  if (busy || activeView !== 'secret' || expireDisplay()) return;
+  const current = generation;
+  setBusy(true);
+  try {
+    await navigator.clipboard.writeText(output.value);
+  } catch {
+    if (generation !== current) return;
+    setBusy(false);
+    output.focus();
+    output.select();
+    status.textContent = 'Copy manually, then tap Clear now.';
+    return;
+  }
+  if (generation === current) finish('Copied. Gone.', 'Your secret is on your clipboard.');
+});
+byId('clear-secret').addEventListener('click', () => {
+  if (!busy) finish('Gone.', 'Nothing left on this page.');
+});
+function clearPage() {
+  if (activeView === 'secret' || activeView === 'reveal') finish('Closed.', 'Not revealed yet? Reopen the original link.');
+  else newSecret();
+}
+window.addEventListener('pagehide', clearPage);
+window.addEventListener('pageshow', event => { if (event.persisted) clearPage(); else expireDisplay(); });
+document.addEventListener('visibilitychange', expireDisplay);
 for (const button of document.querySelectorAll('.start-over')) {
   button.addEventListener('click', newSecret);
 }
