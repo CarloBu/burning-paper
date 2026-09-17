@@ -1,0 +1,11 @@
+---
+interface Props { name: string; hidden?: boolean; }
+const { name, hidden = true } = Astro.props;
+---
+
+<section id={`${name}-view`} class="action-panel" hidden={hidden}>
+  <div class="main-action"><slot /></div>
+  <div class="secondary-action"><slot name="secondary" /></div>
+  <div class="action-detail"><slot name="detail" /></div>
+</section>
+

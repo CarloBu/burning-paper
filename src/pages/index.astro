@@ -1,17 +1,68 @@
 ---
-
+import Button from '../components/Button.astro';
+import Paper from '../components/Paper.astro';
+import ActionPanel from '../components/ActionPanel.astro';
+import '../styles/global.css';
 ---
 
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#101216" />
+    <title>Burning Paper | One link. One retrieval.</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body data-mode="letter">
+    <main>
+      <span id="step-label" class="sr-only" role="status">Write a secret</span>
+      <div class="workspace">
+        <Paper>
+          <form id="secret-form" class="writing-area" autocomplete="off">
+            <label class="sr-only" for="secret-input">Your secret</label>
+            <textarea id="secret-input" class="paper-text" name="secret" placeholder="Write a secret…" maxlength="4096" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" data-lpignore="true" data-1p-ignore required aria-describedby="size-note form-error"></textarea>
+            <span id="size-note" class="sr-only">0 / 4,096 bytes</span>
+          </form>
+          <div id="secret-paper" class="writing-area" hidden>
+            <label class="sr-only" for="revealed-secret">Revealed secret</label>
+            <textarea id="revealed-secret" class="paper-text" readonly spellcheck="false" autocomplete="off" data-lpignore="true" data-1p-ignore></textarea>
+          </div>
+        </Paper>
+        <div class="controls" id="controls">
+          <ActionPanel name="compose" hidden={false}>
+            <Button id="create-button" type="submit" form="secret-form" disabled>Seal secret</Button>
+            <span slot="detail" id="compose-detail">Encrypted in your browser. Retrievable once.</span>
+          </ActionPanel>
+          <ActionPanel name="share">
+            <Button id="copy-link">Copy link</Button>
+            <Button slot="secondary" variant="secondary" class="start-over" id="share-cancel">New secret</Button>
+            <div slot="detail" class="link-wrap">
+              <label class="sr-only" for="share-link">Your private link</label>
+              <input id="share-link" class="link-field" type="text" readonly spellcheck="false" autocomplete="off" />
+            </div>
+          </ActionPanel>
+          <ActionPanel name="reveal">
+            <Button id="reveal-button">Reveal once</Button>
+            <span slot="detail" id="reveal-detail">Anyone with this link can open it. Reveal only when ready.</span>
+          </ActionPanel>
+          <ActionPanel name="secret">
+            <Button class="start-over">New secret</Button>
+          </ActionPanel>
+          <ActionPanel name="done">
+            <Button class="start-over">New secret</Button>
+          </ActionPanel>
+        </div>
+        <div class="feedback">
+          <p id="form-error" class="error" role="alert" hidden></p>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </div>
+        <footer>Encrypted · One retrieval · 24h expiry</footer>
+        <noscript><p class="error">Enable JavaScript to encrypt your secret.</p></noscript>
+      </div>
+    </main>
+    <script src="../scripts/app.js"></script>
+  </body>
 </html>
