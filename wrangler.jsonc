@@ -10,31 +10,18 @@
   },
   "durable_objects": {
     "bindings": [
-      {
-        "name": "PAPERS",
-        "class_name": "Paper"
-      }
+      { "name": "PAPERS", "class_name": "Paper" },
+      { "name": "WHISPERS", "class_name": "WhisperRoom" }
     ]
   },
   "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": [
-        "Paper"
-      ]
-    }
+    { "tag": "v1", "new_sqlite_classes": ["Paper"] },
+    { "tag": "v2", "new_sqlite_classes": ["WhisperRoom"] }
   ],
-  "ratelimits": [
-    {
-      "name": "RATE_LIMITER",
-      "namespace_id": "1001",
-      "simple": {
-        "limit": 30,
-        "period": 60
-      }
-    }
-  ],
-  "observability": {
-    "enabled": false
-  }
+  "ratelimits": [{
+    "name": "RATE_LIMITER",
+    "namespace_id": "1001",
+    "simple": { "limit": 30, "period": 60 }
+  }],
+  "observability": { "enabled": false }
 }

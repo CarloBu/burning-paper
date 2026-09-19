@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+export { WhisperRoom } from './whisper-room.js';
 
 const SECURITY_HEADERS = {
   'Cache-Control': 'no-store',
@@ -92,13 +93,19 @@ async function route(request, env) {
     if (request.method !== 'GET' && request.method !== 'HEAD') fail(405, 'Method not allowed.');
     return env.ASSETS.fetch(request);
   }
-  if (url.pathname !== '/api/secrets' && url.pathname !== '/api/reveal') fail(404, 'Not found.');
-  if (request.method !== 'POST') fail(405, 'Method not allowed.');
+  const whisper = /^\/api\/whisper\/([^/]+)\/(sender|recipient)$/.exec(url.pathname);
+  if (!whisper && url.pathname !== '/api/secrets' && url.pathname !== '/api/reveal') fail(404, 'Not found.');
+  if (request.method !== (whisper ? 'GET' : 'POST')) fail(405, 'Method not allowed.');
   if (request.headers.get('Origin') !== url.origin || request.headers.get('Sec-Fetch-Site') === 'cross-site') {
     fail(403, 'Open Burning Paper directly to continue.');
   }
   const { success } = await env.RATE_LIMITER.limit({ key: request.headers.get('CF-Connecting-IP') || 'local' });
   if (!success) fail(429, 'Too many requests. Please wait a minute.');
+  if (whisper) {
+    if (url.search || !validBase64(whisper[1], 32, 32)) fail(400, 'Invalid Whisper link.');
+    if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') fail(426, 'A WebSocket connection is required.');
+    return env.WHISPERS.getByName(whisper[1]).fetch(request);
+  }
   const body = await readJson(request);
 
   if (url.pathname === '/api/secrets') {
@@ -127,8 +134,13 @@ export default {
         ? error
         : Response.json({ error: 'Something went wrong. Please try again later.' }, { status: 500 });
     }
-    const secured = new Response(response.body, response);
+    const secured = response.status === 101
+      ? new Response(null, { status: 101, headers: response.headers, webSocket: response.webSocket })
+      : new Response(response.body, response);
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) secured.headers.set(name, value);
+    const websocketOrigin = new URL(request.url).origin.replace(/^http/, 'ws');
+    secured.headers.set('Content-Security-Policy', SECURITY_HEADERS['Content-Security-Policy']
+      .replace("connect-src 'self'", `connect-src 'self' ${websocketOrigin}`));
     secured.headers.delete('ETag');
     secured.headers.delete('Last-Modified');
     return secured;
