@@ -1,6 +1,7 @@
 ---
 import Button from '../components/Button.astro';
 import Paper from '../components/Paper.astro';
+import Whisper from '../components/Whisper.astro';
 import ActionPanel from '../components/ActionPanel.astro';
 import '../styles/global.css';
 ---
@@ -31,6 +32,7 @@ import '../styles/global.css';
             <textarea id="revealed-secret" class="paper-text" readonly spellcheck="false" autocomplete="off" data-lpignore="true" data-1p-ignore></textarea>
           </div>
         </Paper>
+        <Whisper />
         <div class="controls" id="controls">
           <ActionPanel name="compose" hidden={false}>
             <Button id="create-button" type="submit" form="secret-form" disabled>Seal secret</Button>
@@ -49,8 +51,8 @@ import '../styles/global.css';
             <span slot="detail" id="reveal-detail">Anyone with this link can open it. Reveal only when ready.</span>
           </ActionPanel>
           <ActionPanel name="secret">
-            <Button id="copy-secret">Copy &amp; clear</Button>
-            <Button slot="secondary" variant="secondary" id="clear-secret">Clear now</Button>
+            <Button id="copy-secret">Copy &amp; burn</Button>
+            <Button slot="secondary" variant="secondary" id="clear-secret">Burn now</Button>
             <span slot="detail">Disappears in <span id="countdown" class="timer">60s</span></span>
           </ActionPanel>
           <ActionPanel name="done">
@@ -61,7 +63,13 @@ import '../styles/global.css';
           <p id="form-error" class="error" role="alert" hidden></p>
           <p id="status" class="status" role="status" aria-live="polite"></p>
         </div>
-        <footer>Encrypted · One retrieval · 24h expiry</footer>
+        <footer>
+          <span class="mode-summary">
+            <span id="mode-footer">Encrypted · One retrieval · 24h expiry</span>
+            <span class="mode-summary-size" aria-hidden="true">Encrypted · One retrieval · 24h expiry</span>
+          </span>
+          <span class="mode-aside" id="mode-aside"> · <button id="mode-toggle" type="button">try Whisper ↗</button></span>
+        </footer>
         <noscript><p class="error">Enable JavaScript to encrypt your secret.</p></noscript>
       </div>
     </main>
