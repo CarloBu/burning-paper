@@ -23,6 +23,10 @@ main { min-height: 100svh; display: grid; place-items: center; padding: 32px 28p
 a:focus-visible { outline: 1px solid #d4d4d4; outline-offset: 5px; }
 a, input, textarea { -webkit-tap-highlight-color: transparent; }
 ::selection { color: #1b2027; background: #cbd3df; }
+.paper-surface ::selection { color: #302e27; background: #c6b994; }
+.writing-area { height: 100%; }
+.paper-text { display: block; width: 100%; height: 100%; resize: none; border: 0; border-radius: 0; background: transparent; padding: 0; color: #403c32; font: 14px/1.9 var(--mono); outline: none; scrollbar-width: thin; scrollbar-color: #aaa18d transparent; }
+.paper-text::placeholder { color: #918777; opacity: 1; font: italic 20px/1.5 Georgia, serif; }
 .controls { margin-top: 28px; }
 .controls[aria-busy='true'] .secondary-action, .controls[aria-busy='true'] .action-detail { visibility: hidden; }
 .link-wrap { width: 100%; }

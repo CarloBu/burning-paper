@@ -1,9 +1,78 @@
 <div class="message-stage paper-stage" id="paper-stage" data-state="open">
-  <article class="paper-surface" id="paper" aria-label="Your private note">
-    <div class="paper-content"><slot /></div>
-  </article>
+  <div class="paper-rig">
+    <article class="paper-surface" id="paper" aria-label="Your private note">
+      <div class="paper-content"><slot /></div>
+    </article>
+    <div class="paper-flap" aria-hidden="true" inert>
+      <div class="flap-face flap-front"><div class="paper-mirror"></div></div>
+      <div class="flap-face flap-back">
+        <div class="sealed-mark">
+          <span class="wax-seal">wlf</span>
+          <span class="sealed-caption">this secret is sealed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <canvas class="burn-canvas" aria-hidden="true"></canvas>
   <div class="paper-done" id="done-paper" hidden>
     <h2 id="done-title">Gone.</h2>
     <p id="done-message">Cleared from this page.</p>
   </div>
 </div>
+
+<style>
+  .paper-stage {
+    perspective: 1600px;
+    perspective-origin: 50% 32%;
+  }
+  .paper-rig { position: absolute; inset: 0; z-index: 1; transform-style: preserve-3d; pointer-events: none; }
+  .paper-surface, .flap-face {
+    background-color: #e9e6db;
+    background-image: url('/paper-grain.svg'), linear-gradient(112deg, #dfdbcf, #f0eee5 46%);
+    background-blend-mode: soft-light, normal;
+  }
+  .paper-surface {
+    pointer-events: auto;
+    position: absolute;
+    inset: 0;
+  }
+  [data-creased] .paper-surface::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: linear-gradient(#8076640b, #fff5, #80766408); pointer-events: none; }
+  .paper-content { height: 100%; padding: var(--message-padding); color: #3d3a32; }
+  .paper-flap { position: absolute; top: 50%; left: 0; width: 100%; height: 50%; transform-origin: center top; transform-style: preserve-3d; visibility: hidden; }
+  .flap-face { position: absolute; inset: 0; backface-visibility: hidden; overflow: hidden; }
+  .flap-front {
+    /* Show the lower half of the same full-sheet texture and gradient. */
+    background-size: auto, 100% var(--sheet-height);
+    background-position: left calc(var(--sheet-height) / -2), left bottom;
+    background-repeat: repeat, no-repeat;
+    box-shadow: inset 0 1px #fff8;
+  }
+  .flap-back {
+    transform: rotateX(180deg) translateZ(.5px);
+    background-image: url('/paper-grain.svg'), linear-gradient(170deg, #e1ddcf, #f0ece1 20%, #e6e1d4 92%, #cac2b1);
+    box-shadow: 0 -1px 0 #fffc, 0 3px 3px #0006, 0 15px 30px #0005, inset 0 -2px 3px #a99e8560;
+  }
+  .paper-mirror { position: absolute; top: calc(var(--sheet-height) / -2); width: 100%; height: var(--sheet-height); }
+  .sealed-mark { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .wax-seal {
+    display: grid; place-items: center; width: 52px; height: 51px;
+    border-radius: 47% 51% 45% 49%;
+    background: radial-gradient(ellipse at 35% 22%, #b55c42, #813b2c 55%, #60281e);
+    border: 1px solid #b9745540; outline: 1px solid #61281980; outline-offset: -7px;
+    box-shadow: inset 1px 2px 3px #ffc99560, inset -2px -3px 4px #3e170d70, 1px 3px 2px #63513c55, 2px 7px 9px #63513c35;
+    color: #6d2d20; text-shadow: 0 1px 1px #d9845c80, 0 -1px 1px #39160c80;
+    font: italic 18px/1 Georgia, serif;
+  }
+  .sealed-caption { color: #8c8372; font: italic 12px Georgia, serif; }
+  [data-state='folded'] .paper-rig { transform: translateY(25%); }
+  [data-state='folded'] .paper-surface { clip-path: inset(0 0 50% 0); }
+  /* Overlap the hinge so antialiased edges cannot expose the dark background. */
+  [data-state='folding'] .paper-surface { clip-path: inset(0 0 calc(50% - 1px) 0); }
+  [data-state='folded'] .paper-flap { visibility: visible; transform: rotateX(180deg); }
+  [data-state='folding'] .paper-flap { visibility: visible; }
+  [data-state='gone'] .paper-rig { visibility: hidden; }
+  .burn-canvas { position: absolute; top: -64px; left: -64px; z-index: 2; width: calc(100% + 64px + var(--drift-space, 64px)); height: calc(100% + 128px); pointer-events: none; }
+  .paper-done { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; }
+  .paper-done h2 { color: #d5dce7; font: 400 34px Georgia, serif; margin: 0; }
+  .paper-done p { max-width: 260px; color: var(--muted); font-size: 12px; line-height: 1.8; margin: 16px 0 0; }
+</style>
