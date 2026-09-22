@@ -9,3 +9,9 @@ const { name, hidden = true } = Astro.props;
   <div class="action-detail"><slot name="detail" /></div>
 </section>
 
+<style>
+  .action-panel { display: grid; grid-template-rows: 49px 34px 42px; justify-items: center; gap: 3px; }
+  .main-action { width: min(100%, 260px); }
+  .secondary-action { display: flex; justify-content: center; align-items: center; }
+  .action-detail { width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.7; color: var(--muted); }
+</style>
