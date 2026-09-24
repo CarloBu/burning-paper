@@ -139,7 +139,26 @@ function finish(title, message) {
 }
 
 async function burnAndFinish(title, message) {
-  finish(title, message);
+  if (mode === 'whisper') {
+    finish(title, message);
+    return;
+  }
+  clearSensitive({ keepPaper: true });
+  const current = generation;
+  setBusy(true);
+  copyButton.firstElementChild.textContent = 'Burning…';
+  byId('step-label').textContent = 'Burning the paper';
+  prepareDone(title, message);
+  try {
+    await paper.burn();
+  } catch {
+    if (generation === current) paper.reset('gone');
+  } finally {
+    if (generation === current) {
+      output.value = '';
+      showDone(title, message);
+    }
+  }
 }
 
 function expireDisplay() {
@@ -374,7 +393,13 @@ revealButton.addEventListener('click', async () => {
   } catch (error) {
     if (generation !== current) return;
     if (error.status === 410) {
-      finish('Only ashes.', error.message);
+      clearSensitive();
+      const ashGeneration = generation;
+      revealButton.firstElementChild.textContent = 'Only ashes…';
+      byId('step-label').textContent = 'The note dissolves into ashes';
+      prepareDone('Only ashes.', error.message);
+      await paper.ash();
+      if (generation === ashGeneration) showDone('Only ashes.', error.message);
       return;
     }
     const message = error.name === 'OperationError'
