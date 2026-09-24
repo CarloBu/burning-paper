@@ -1,4 +1,5 @@
 import { encryptSecret, decryptSecret, readSecretLink } from './crypto.js';
+import { createPaperMotion } from './paper-motion.js';
 import { readWhisperLink } from './whisper-crypto.js';
 import { createWhisper, receiveWhisper, whisperSupported } from './whisper.js';
 
@@ -13,6 +14,7 @@ const copyButton = byId('copy-secret');
 const controls = byId('controls');
 const status = byId('status');
 const formError = byId('form-error');
+const paper = createPaperMotion(byId('paper-stage'));
 const views = ['compose', 'share', 'reveal', 'secret', 'done'];
 const labels = { compose: 'Write a secret', share: 'Sealed. Share your link.', reveal: 'A sealed note for you', secret: 'Your secret. Copy before it disappears.', done: 'Cleared' };
 let activeView = 'compose';
@@ -132,6 +134,7 @@ function showDone(title, message) {
 
 function finish(title, message) {
   clearSensitive();
+  paper.reset('gone');
   showDone(title, message);
 }
 
@@ -176,6 +179,7 @@ async function post(path, body) {
 
 function newSecret() {
   clearSensitive();
+  paper.reset();
   setBusy(false);
   updateMode();
   show('compose');
@@ -205,6 +209,7 @@ async function readLink() {
   }
   revealButton.disabled = false;
   revealButton.firstElementChild.textContent = mode === 'whisper' ? 'Receive whisper' : 'Reveal once';
+  paper.reset('folded');
   show('reveal');
   setBusy(false);
 }
@@ -214,6 +219,7 @@ modeToggle.addEventListener('click', () => {
   if (busy || !['compose', 'done'].includes(activeView)) return;
   mode = mode === 'letter' ? 'whisper' : 'letter';
   if (activeView === 'done') { newSecret(); input.focus({ preventScroll: true }); return; }
+  paper.reset();
   updateMode();
   show('compose');
   updateSize();
@@ -277,6 +283,7 @@ byId('secret-form').addEventListener('submit', async (event) => {
     const { id } = await post('/api/secrets', encrypted.payload);
     if (generation !== current) return;
     shareLink.value = `${location.origin}/#${id}.${encrypted.key}`;
+    await paper.fold();
     if (generation !== current) return;
     input.value = '';
     show('share');
@@ -311,6 +318,7 @@ async function showReceivedSecret(plaintext, current) {
       else void burnAndFinish('Gone.', 'Time’s up. Cleared from this page.');
     }
   }, 250);
+  if (mode === 'letter') await paper.unfold();
   if (generation === current) setBusy(false);
 }
 
@@ -333,6 +341,7 @@ copyLinkButton.addEventListener('click', async () => {
   if (generation !== current) return;
   copyLinkButton.firstElementChild.textContent = 'Link copied';
   status.textContent = 'Copied. Share privately.';
+  if (mode === 'letter') paper.lift();
 });
 
 revealButton.addEventListener('click', async () => {
