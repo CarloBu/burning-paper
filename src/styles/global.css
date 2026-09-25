@@ -9,7 +9,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; min-width: 280px; background: radial-gradient(ellipse at 50% 20%, #24282f66, transparent 65%); }
-main { min-height: 100svh; display: grid; place-items: center; padding: 32px 28px; overflow-x: clip; }
+main { min-height: 100svh; display: grid; place-items: center; padding: clamp(32px, 16svh, 160px) 28px 32px; overflow-x: clip; }
 .workspace { width: min(100%, 380px); --sheet-height: clamp(340px, 54svh, 500px); --message-padding: 51px 32px 30px; }
 .message-stage { position: relative; width: 100%; height: var(--sheet-height); }
 .air-stage { isolation: isolate; }
@@ -41,7 +41,7 @@ a, input, textarea { -webkit-tap-highlight-color: transparent; }
 .link-field:focus { outline: none; border-color: #d4d4d4; }
 .controls ::selection { color: #262626; background: #d4d4d4; }
 .timer { font-variant-numeric: tabular-nums; color: #f5f5f5; }
-.feedback { min-height: 34px; text-align: center; }
+.feedback { min-height: 12px; text-align: center; }
 .status, .error { margin: 0; font-size: 12px; line-height: 1.7; }
 .status { color: var(--muted); }
 .whisper-wait { margin: 0 0 10px; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.7; }
