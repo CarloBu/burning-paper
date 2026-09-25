@@ -11,7 +11,7 @@
     "build": "astro build",
     "deploy": "astro build && wrangler deploy",
     "test": "vitest run",
-    "check": "node --check src/worker.js"
+    "check": "node --check src/worker.js && node --check src/whisper-room.js && node --check src/scripts/app.js && node --check src/scripts/crypto.js && node --check src/scripts/whisper-crypto.js && node --check src/scripts/whisper.js && node --check src/scripts/paper-motion.js && node --check src/scripts/whisper-air.js"
   },
   "dependencies": {
     "astro": "7.3.3"

@@ -1,5 +1,6 @@
 import { encryptSecret, decryptSecret, readSecretLink } from './crypto.js';
 import { createPaperMotion } from './paper-motion.js';
+import { createWhisperAir } from './whisper-air.js';
 import { readWhisperLink } from './whisper-crypto.js';
 import { createWhisper, receiveWhisper, whisperSupported } from './whisper.js';
 
@@ -30,6 +31,8 @@ let whisperExpiresAt = 0;
 const modeToggle = byId('mode-toggle');
 const paperStage = byId('paper-stage');
 const whisperStage = byId('whisper-stage');
+const whisperAir = createWhisperAir(whisperStage);
+if (import.meta.hot) import.meta.hot.dispose(whisperAir.dispose);
 const paperContent = paperStage.querySelector('.paper-content');
 
 function updateWhisperPresentation() {
@@ -135,12 +138,21 @@ function showDone(title, message) {
 function finish(title, message) {
   clearSensitive();
   paper.reset('gone');
+  whisperAir.reset('gone');
   showDone(title, message);
 }
 
 async function burnAndFinish(title, message) {
   if (mode === 'whisper') {
-    finish(title, message);
+    clearSensitive();
+    const current = generation;
+    setBusy(true);
+    byId('step-label').textContent = 'Letting the whisper go';
+    try {
+      await whisperAir.release();
+    } finally {
+      if (generation === current) showDone(title, message);
+    }
     return;
   }
   clearSensitive({ keepPaper: true });
@@ -199,6 +211,7 @@ async function post(path, body) {
 function newSecret() {
   clearSensitive();
   paper.reset();
+  whisperAir.reset();
   setBusy(false);
   updateMode();
   show('compose');
@@ -229,6 +242,7 @@ async function readLink() {
   revealButton.disabled = false;
   revealButton.firstElementChild.textContent = mode === 'whisper' ? 'Receive whisper' : 'Reveal once';
   paper.reset('folded');
+  if (mode === 'whisper') whisperAir.reset('held');
   show('reveal');
   setBusy(false);
 }
@@ -239,6 +253,7 @@ modeToggle.addEventListener('click', () => {
   mode = mode === 'letter' ? 'whisper' : 'letter';
   if (activeView === 'done') { newSecret(); input.focus({ preventScroll: true }); return; }
   paper.reset();
+  whisperAir.reset();
   updateMode();
   show('compose');
   updateSize();
@@ -290,6 +305,7 @@ byId('secret-form').addEventListener('submit', async (event) => {
   formError.hidden = true;
   if (mode === 'whisper') {
     try {
+      await whisperAir.gather(input);
       if (generation === current) startWhisper(current);
     } catch {
       if (generation === current) finish('Whisper unavailable.', 'Use a browser with WebRTC over HTTPS, or create a Sealed Letter.');
@@ -338,6 +354,7 @@ async function showReceivedSecret(plaintext, current) {
     }
   }, 250);
   if (mode === 'letter') await paper.unfold();
+  else await whisperAir.reveal(output);
   if (generation === current) setBusy(false);
 }
 
@@ -361,6 +378,7 @@ copyLinkButton.addEventListener('click', async () => {
   copyLinkButton.firstElementChild.textContent = 'Link copied';
   status.textContent = 'Copied. Share privately.';
   if (mode === 'letter') paper.lift();
+  else whisperAir.pulse();
 });
 
 revealButton.addEventListener('click', async () => {
