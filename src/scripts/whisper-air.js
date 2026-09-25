@@ -102,7 +102,7 @@ export function createWhisperAir(stage) {
     ink.addColorStop(1, 'rgba(201, 217, 236, 0)');
     context.strokeStyle = ink;
 
-    // Each filament bends independently as several travelling currents meet.
+    // Keep neighboring phases close enough to preserve space between filaments.
     for (let ribbon = 0; ribbon < 42; ribbon++) {
       const v = ribbon / 41;
       const edge = Math.sin(Math.PI * v);
@@ -113,9 +113,9 @@ export function createWhisperAir(stage) {
       for (let point = 0; point <= 80; point++) {
         const u = point / 80;
         const envelope = Math.sin(Math.PI * u);
-        const swell = Math.sin(u * 6.3 - time * 0.7 + v * 4.8);
-        const curl = Math.sin(u * 11 + time * 0.48 - v * 7.2);
-        const ripple = Math.sin(u * 19 - time * 0.9 + v * 12);
+        const swell = Math.sin(u * 6.3 - time * 0.7 + v * 1.8);
+        const curl = Math.sin(u * 11 + time * 0.48 - v * 2.4);
+        const ripple = Math.sin(u * 19 - time * 0.9 + v * 3.6);
         const flow = 0.08 + v * 0.84 + envelope * edge * (
           swell * 0.095 + curl * 0.045 + ripple * 0.012
         );
