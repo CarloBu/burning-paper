@@ -5,9 +5,9 @@
   "type": "module",
   "packageManager": "pnpm@11.5.1",
   "scripts": {
-    "dev": "astro build && wrangler dev",
+    "dev": "pnpm run --parallel \"/^dev:(ui|worker)$/\"",
     "dev:ui": "astro dev",
-    "dev:worker": "wrangler dev --port 8787",
+    "dev:worker": "wrangler dev --port 8787 --assets ./public",
     "build": "astro build",
     "deploy": "astro build && wrangler deploy",
     "test": "vitest run",
